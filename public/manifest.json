@@ -1,0 +1,23 @@
+{
+  "short_name": "JNTo",
+  "name": "JNTo",
+  "description": "Farm OPT with Optimus LP Tokens",
+  "homepage_url": "https://optimuswap.io",
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#FF0063",
+  "background_color": "#ffffff",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "images/metakey-logo-icon.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "images/metakey-logo-icon.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ]
+}
