@@ -19,7 +19,14 @@ import {
 import { AppModalBody, AppModalContainer, AppModalHeader } from 'components/Modal/AppModalStyles'
 import { BINANCE_WALLET_INSTALL_URL, WALLET_INSTALL_URLS } from 'config/walletInstallUrls'
 import useTheme from 'hooks/useTheme'
-import { isBinanceChainInstalled, isWalletInstalled, setStoredWalletKey, WalletKey } from 'utils/walletProviders'
+import { openMobileWalletApp } from 'utils/mobileWallet'
+import {
+  isBinanceChainInstalled,
+  isWalletInstalled,
+  setStoredWalletKey,
+  shouldUseMobileWalletDeepLink,
+  WalletKey,
+} from 'utils/walletProviders'
 
 const WalletButton = styled(Button).attrs({ width: '100%', variant: 'text', py: '16px' })`
   align-items: center;
@@ -97,6 +104,13 @@ const ConnectWalletModal: React.FC<ConnectWalletModalProps> = ({ login, onDismis
   } | null>(null)
 
   const handleWalletClick = (wallet: BscWalletOption) => {
+    if (wallet.walletKey && shouldUseMobileWalletDeepLink(wallet.walletKey)) {
+      setInstallPrompt(null)
+      onDismiss()
+      openMobileWalletApp(wallet.walletKey)
+      return
+    }
+
     if (!isWalletReady(wallet)) {
       const installUrl =
         wallet.walletKey && WALLET_INSTALL_URLS[wallet.walletKey]
@@ -146,7 +160,7 @@ const ConnectWalletModal: React.FC<ConnectWalletModalProps> = ({ login, onDismis
           <InstallPanel>
             <installPrompt.icon width="56px" mb="8px" />
             <Text color="textSubtle" fontSize="14px">
-              {t('%wallet% extension is not installed in this browser.').replace(
+              {t('%wallet% is not available in this browser. Install the extension or use the mobile app.').replace(
                 '%wallet%',
                 installPrompt.title,
               )}
@@ -178,6 +192,11 @@ const ConnectWalletModal: React.FC<ConnectWalletModalProps> = ({ login, onDismis
                     >
                       <Icon width="40px" mb="8px" />
                       <Text fontSize="14px">{wallet.title}</Text>
+                      {wallet.walletKey && shouldUseMobileWalletDeepLink(wallet.walletKey) && (
+                        <Text fontSize="11px" color="textSubtle" mt="4px">
+                          {t('Open in app')}
+                        </Text>
+                      )}
                     </WalletButton>
                   </Box>
                 )

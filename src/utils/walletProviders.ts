@@ -10,6 +10,8 @@ export enum WalletKey {
   Phantom = 'phantom',
 }
 
+import { isMobileBrowser } from './isMobileBrowser'
+
 export type Eip1193Provider = {
   isMetaMask?: boolean
   isTrust?: boolean
@@ -233,7 +235,40 @@ export function getActiveWalletProvider(): Eip1193Provider | undefined {
   return getProviderForWallet(key)
 }
 
+/** Injected provider present, or mobile browser (use wallet app deep link). */
+export function isMetaMaskConnectable(): boolean {
+  return !!getMetaMaskWalletProvider() || isMobileBrowser()
+}
+
+export function isTrustConnectable(): boolean {
+  return !!getTrustWalletProvider() || isMobileBrowser()
+}
+
+export function shouldUseMetaMaskMobileDeepLink(): boolean {
+  return isMobileBrowser() && !getMetaMaskWalletProvider()
+}
+
+export function shouldUseTrustMobileDeepLink(): boolean {
+  return isMobileBrowser() && !getTrustWalletProvider()
+}
+
+export function shouldUseMobileWalletDeepLink(key: WalletKey): boolean {
+  if (key === WalletKey.MetaMask) {
+    return shouldUseMetaMaskMobileDeepLink()
+  }
+  if (key === WalletKey.Trust) {
+    return shouldUseTrustMobileDeepLink()
+  }
+  return false
+}
+
 export function isWalletInstalled(key: WalletKey): boolean {
+  if (key === WalletKey.MetaMask) {
+    return isMetaMaskConnectable()
+  }
+  if (key === WalletKey.Trust) {
+    return isTrustConnectable()
+  }
   return !!getProviderForWallet(key)
 }
 

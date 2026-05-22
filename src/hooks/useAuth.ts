@@ -11,11 +11,13 @@ import { connectorsByName } from 'utils/web3React'
 import { isWalletConnectConfigured, WalletConnectV2Connector } from 'utils/WalletConnectV2Connector'
 import { requestAccountPicker } from 'utils/metamaskAccount'
 import { setupNetwork } from 'utils/wallet'
+import { openMobileWalletApp } from 'utils/mobileWallet'
 import {
   getActiveWalletProvider,
   isBinanceChainInstalled,
   isWalletInstalled,
   setStoredWalletKey,
+  shouldUseMobileWalletDeepLink,
   WalletKey,
 } from 'utils/walletProviders'
 import useToast from 'hooks/useToast'
@@ -40,9 +42,10 @@ function isUserRejectedRequest(error: unknown): boolean {
 }
 
 const WALLET_INSTALL_HINTS: Record<WalletKey, string> = {
-  [WalletKey.MetaMask]: 'Install the MetaMask browser extension, then refresh this page.',
+  [WalletKey.MetaMask]:
+    'On desktop, install the MetaMask extension. On mobile, tap MetaMask in Connect Wallet to open the app.',
   [WalletKey.Trust]:
-    'Install the Trust Wallet browser extension from trustwallet.com, then refresh this page.',
+    'On desktop, install Trust Wallet extension. On mobile, tap Trust Wallet in Connect Wallet to open the app.',
   [WalletKey.Phantom]: 'Install the Phantom browser extension, then refresh this page.',
 }
 
@@ -99,6 +102,10 @@ const useAuth = () => {
     async (connectorID: ConnectorNames, walletKey?: WalletKey): Promise<void> => {
       if (connectorID === ConnectorNames.Injected && walletKey) {
         setStoredWalletKey(walletKey)
+        if (shouldUseMobileWalletDeepLink(walletKey)) {
+          openMobileWalletApp(walletKey)
+          return
+        }
         if (!isWalletInstalled(walletKey)) {
           toastError(t('Wallet not found'), WALLET_INSTALL_HINTS[walletKey])
           return
