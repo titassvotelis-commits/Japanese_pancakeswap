@@ -87,7 +87,17 @@ const NEW_KEYS = {
   'Get JNTo': 'Get JNTo',
 }
 
-const LOCALE_OVERRIDES = {
+const UI_KEY_TRANSLATIONS_PATH = path.join(__dirname, 'data/ui-key-translations.json')
+
+/** Full locale translations loaded from scripts/data/ui-key-translations.json */
+function loadUiKeyTranslations() {
+  if (!fs.existsSync(UI_KEY_TRANSLATIONS_PATH)) {
+    return {}
+  }
+  return JSON.parse(fs.readFileSync(UI_KEY_TRANSLATIONS_PATH, 'utf8'))
+}
+
+const LOCALE_OVERRIDES_LEGACY = {
   'ja-JP': {
     'METAKEY SWAP': 'METAKEY SWAP',
     'Telegram announcements': 'Telegramお知らせ',
@@ -205,10 +215,10 @@ const LOCALE_OVERRIDES = {
   },
 }
 
-function mergeKeys(target, keys, overrides = {}) {
+function mergeKeys(target, keys, overrides = {}, force = false) {
   const next = { ...target }
   Object.entries(keys).forEach(([key, en]) => {
-    if (next[key] === undefined) {
+    if (force || next[key] === undefined) {
       next[key] = overrides[key] ?? en
     }
   })
@@ -216,6 +226,7 @@ function mergeKeys(target, keys, overrides = {}) {
 }
 
 function main() {
+  const uiByLocale = loadUiKeyTranslations()
   const translations = JSON.parse(fs.readFileSync(TRANSLATIONS_PATH, 'utf8'))
   const mergedTranslations = mergeKeys(translations, NEW_KEYS)
   fs.writeFileSync(TRANSLATIONS_PATH, `${JSON.stringify(mergedTranslations, null, 2)}\n`)
@@ -225,8 +236,8 @@ function main() {
     const locale = file.replace('.json', '')
     const filePath = path.join(LOCALES_DIR, file)
     const data = JSON.parse(fs.readFileSync(filePath, 'utf8'))
-    const overrides = LOCALE_OVERRIDES[locale] ?? {}
-    const merged = mergeKeys(data, NEW_KEYS, overrides)
+    const overrides = uiByLocale[locale] ?? LOCALE_OVERRIDES_LEGACY[locale] ?? {}
+    const merged = mergeKeys(data, NEW_KEYS, overrides, Boolean(uiByLocale[locale]))
     fs.writeFileSync(filePath, `${JSON.stringify(merged, null, 2)}\n`)
   })
 
