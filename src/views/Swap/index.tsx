@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { Suspense, lazy, useCallback, useEffect, useMemo, useState } from 'react'
 import styled from 'styled-components'
 import { Helmet } from 'react-helmet-async'
 import { CurrencyAmount, JSBI, Token, Trade } from '@pancakeswap/sdk'
@@ -16,8 +16,11 @@ import CurrencyInputPanel from '../../components/CurrencyInputPanel'
 import { AutoRow, RowBetween } from '../../components/Layout/Row'
 import AdvancedSwapDetailsDropdown from './components/AdvancedSwapDetailsDropdown'
 import SwapPageLayout from './components/SwapPageLayout'
+import useDeferredMount from 'hooks/useDeferredMount'
+import SwapChartSkeleton from './components/SwapChartSkeleton'
 import SwapMobileChartSheet from './components/SwapMobileChartSheet'
-import SwapTradingViewChart from './components/SwapTradingViewChart'
+
+const SwapTradingViewChart = lazy(() => import('./components/SwapTradingViewChart'))
 import confirmPriceImpactWithoutFee from './components/confirmPriceImpactWithoutFee'
 import SwapTokenDirectionButton from 'components/SwapTokenDirectionButton'
 import { ArrowWrapper, SwapCallbackError, Wrapper } from './components/styleds'
@@ -82,10 +85,25 @@ export default function Swap({ history }: RouteComponentProps) {
   const { account, chainId } = useActiveWeb3React()
   const { isLg, isXl, isXxl } = useMatchBreakpoints()
   const isSwapSideBySide = isLg || isXl || isXxl
-  const [chartOpen, setChartOpen] = useState(
-    () => typeof window !== 'undefined' && window.innerWidth >= NAV_BREAKPOINTS.lg,
-  )
+  const [chartOpen, setChartOpen] = useState(false)
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return undefined
+    }
+    if (window.innerWidth >= NAV_BREAKPOINTS.lg) {
+      const openChart = () => setChartOpen(true)
+      if (typeof window.requestIdleCallback === 'function') {
+        const id = window.requestIdleCallback(openChart, { timeout: 500 })
+        return () => window.cancelIdleCallback(id)
+      }
+      const id = window.setTimeout(openChart, 0)
+      return () => window.clearTimeout(id)
+    }
+    return undefined
+  }, [])
   const [chartInverted, setChartInverted] = useState(false)
+  const onChartPairFlip = useCallback(() => setChartInverted((v) => !v), [])
 
   // for expert mode
   const [isExpertMode] = useExpertModeManager()
@@ -109,6 +127,8 @@ export default function Swap({ history }: RouteComponentProps) {
 
   const showChart = chartOpen
   const showChartSideBySide = showChart && isSwapSideBySide
+  const showMobileChartSheet = showChart && !isSwapSideBySide
+  const chartMountReady = useDeferredMount(showChartSideBySide || showMobileChartSheet)
 
   const {
     wrapType,
@@ -341,17 +361,37 @@ export default function Swap({ history }: RouteComponentProps) {
     'confirmSwapModal',
   )
 
-  const chartPanelProps = {
-    inputCurrency: currencies[Field.INPUT],
-    outputCurrency: currencies[Field.OUTPUT],
-    inputCurrencyId,
-    outputCurrencyId,
-    chartInverted,
-    onChartPairFlip: () => setChartInverted((v) => !v),
-    chainId,
-  }
+  const chartPanelProps = useMemo(
+    () => ({
+      inputCurrency: currencies[Field.INPUT],
+      outputCurrency: currencies[Field.OUTPUT],
+      inputCurrencyId,
+      outputCurrencyId,
+      chartInverted,
+      onChartPairFlip,
+      chainId,
+      active: chartMountReady,
+    }),
+    [
+      currencies,
+      inputCurrencyId,
+      outputCurrencyId,
+      chartInverted,
+      onChartPairFlip,
+      chainId,
+      chartMountReady,
+    ],
+  )
 
-  const showMobileChartSheet = showChart && !isSwapSideBySide
+  const inlineChart = showChartSideBySide ? (
+    chartMountReady ? (
+      <Suspense fallback={<SwapChartSkeleton />}>
+        <SwapTradingViewChart {...chartPanelProps} variant="inline" />
+      </Suspense>
+    ) : (
+      <SwapChartSkeleton />
+    )
+  ) : null
 
   return (
     <TradePageShell wide={showChartSideBySide}>
@@ -359,7 +399,7 @@ export default function Swap({ history }: RouteComponentProps) {
       <SwapPageLayout
         showChart={showChartSideBySide}
         sideBySide={showChartSideBySide}
-        chart={<SwapTradingViewChart {...chartPanelProps} variant="inline" />}
+        chart={inlineChart}
       >
         <AppBody trade>
           <AppHeader
@@ -563,9 +603,17 @@ export default function Swap({ history }: RouteComponentProps) {
           <UnsupportedCurrencyFooter currencies={[currencies.INPUT, currencies.OUTPUT]} />
         )}
       </SwapPageLayout>
-      <SwapMobileChartSheet isOpen={showMobileChartSheet} onClose={() => setChartOpen(false)}>
-        <SwapTradingViewChart {...chartPanelProps} variant="sheet" />
-      </SwapMobileChartSheet>
+      {showMobileChartSheet && (
+        <SwapMobileChartSheet isOpen onClose={() => setChartOpen(false)}>
+          {chartMountReady ? (
+            <Suspense fallback={<SwapChartSkeleton />}>
+              <SwapTradingViewChart {...chartPanelProps} variant="sheet" />
+            </Suspense>
+          ) : (
+            <SwapChartSkeleton />
+          )}
+        </SwapMobileChartSheet>
+      )}
     </TradePageShell>
   )
 }

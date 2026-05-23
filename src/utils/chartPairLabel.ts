@@ -1,28 +1,29 @@
-import tokens from 'config/constants/tokens'
+import { mainnetTokens } from 'config/constants/tokens'
 import { isAddress } from './index'
 
 /** Resolve swap currencyId (address or "BNB") to display symbol for chart header */
-export function symbolFromCurrencyId(currencyId: string): string {
+export function symbolFromCurrencyId(currencyId: string): string | null {
   if (!currencyId) {
-    return ''
+    return null
   }
   if (currencyId.toUpperCase() === 'BNB') {
     return 'BNB'
   }
   if (isAddress(currencyId)) {
-    const found = Object.values(tokens).find((t) => t.address.toLowerCase() === currencyId.toLowerCase())
+    const found = Object.values(mainnetTokens).find((t) => t.address.toLowerCase() === currencyId.toLowerCase())
     if (found) {
-      return found.symbol === 'WBNB' ? 'BNB' : found.symbol ?? 'TOKEN'
+      return found.symbol === 'WBNB' ? 'BNB' : found.symbol ?? null
     }
+    return null
   }
-  return currencyId.slice(0, 6)
+  return currencyId
 }
 
-export function getChartPairLabelFromIds(baseCurrencyId: string, quoteCurrencyId: string): string {
+export function getChartPairLabelFromIds(baseCurrencyId: string, quoteCurrencyId: string): string | null {
   const base = symbolFromCurrencyId(baseCurrencyId)
   const quote = symbolFromCurrencyId(quoteCurrencyId)
   if (!base || !quote) {
-    return ''
+    return null
   }
   return `${base}/${quote}`
 }

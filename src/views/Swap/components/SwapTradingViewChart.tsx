@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { Suspense, lazy, useCallback, useEffect, useMemo, useState } from 'react'
 import styled, { useTheme } from 'styled-components'
 import { Currency } from '@pancakeswap/sdk'
 import { Box, Text } from '@pancakeswap/uikit'
@@ -12,8 +12,27 @@ import { useBinanceKlines } from 'hooks/useBinanceKlines'
 import SwapChart24hStats from './SwapChart24hStats'
 import SwapChartPairHeader from './SwapChartPairHeader'
 import SwapChartMobileHeader from './SwapChartMobileHeader'
-import SwapBinanceCandleChart, { ChartInterval } from './SwapBinanceCandleChart'
-import SwapTradingViewAdvancedEmbed from './SwapTradingViewAdvancedEmbed'
+import type { ChartInterval } from './SwapBinanceCandleChart'
+
+const SwapBinanceCandleChart = lazy(() => import('./SwapBinanceCandleChart'))
+const SwapTradingViewAdvancedEmbed = lazy(() => import('./SwapTradingViewAdvancedEmbed'))
+
+const ChartChunkFallback = styled.div`
+  flex: 1;
+  min-height: 200px;
+  background: ${({ theme }) => (theme.isDark ? '#131722' : '#f0f3fa')};
+  animation: swap-chart-pulse 1.2s ease-in-out infinite;
+
+  @keyframes swap-chart-pulse {
+    0%,
+    100% {
+      opacity: 0.5;
+    }
+    50% {
+      opacity: 0.9;
+    }
+  }
+`
 
 const ChartShell = styled(Box)<{ $variant: 'inline' | 'sheet' }>`
   display: flex;
@@ -110,6 +129,8 @@ type SwapTradingViewChartProps = {
   onChartPairFlip: () => void
   chainId?: number
   variant?: 'inline' | 'sheet'
+  /** When false, skips Binance API / heavy chart mounts until visible. */
+  active?: boolean
 }
 
 const SwapTradingViewChart: React.FC<SwapTradingViewChartProps> = ({
@@ -121,6 +142,7 @@ const SwapTradingViewChart: React.FC<SwapTradingViewChartProps> = ({
   onChartPairFlip,
   chainId,
   variant = 'inline',
+  active = true,
 }) => {
   const { t, currentLanguage } = useTranslation()
   const theme = useTheme()
@@ -162,7 +184,7 @@ const SwapTradingViewChart: React.FC<SwapTradingViewChartProps> = ({
   const useUnifiedChart = Boolean(binancePair)
   const showNoData = isProxy
 
-  const { ticker, loading: tickerLoading } = useBinance24hTicker(baseCurrency, quoteCurrency, chainId)
+  const { ticker, loading: tickerLoading } = useBinance24hTicker(baseCurrency, quoteCurrency, chainId, active)
 
   const [chartInterval, setChartInterval] = useState<ChartInterval>('15m')
 
@@ -177,6 +199,7 @@ const SwapTradingViewChart: React.FC<SwapTradingViewChartProps> = ({
     chartInterval,
     300,
     invertPrices,
+    active,
   )
 
   const handleFlipClick = useCallback(
@@ -198,26 +221,30 @@ const SwapTradingViewChart: React.FC<SwapTradingViewChartProps> = ({
     )
   }
 
-  const chartBody = useUnifiedChart ? (
-    <SwapBinanceCandleChart
-      candles={candles}
-      loading={candlesLoading}
-      isDark={isDark}
-      interval={chartInterval}
-      onIntervalChange={setChartInterval}
-      chartKey={chartRenderKey}
-      layout={isSheet ? 'mobile' : 'desktop'}
-      pairLabel={pairLabel}
-      showNoData={showNoData}
-    />
-  ) : (
-    <SwapTradingViewAdvancedEmbed
-      symbol={embedSymbol}
-      theme={isDark ? 'dark' : 'light'}
-      locale={currentLanguage.code}
-      interval="15"
-      remountKey={`${embedSymbol}-${chartInverted}-${isDark}-${isSheet}`}
-    />
+  const chartBody = (
+    <Suspense fallback={<ChartChunkFallback />}>
+      {useUnifiedChart ? (
+        <SwapBinanceCandleChart
+          candles={candles}
+          loading={candlesLoading}
+          isDark={isDark}
+          interval={chartInterval}
+          onIntervalChange={setChartInterval}
+          chartKey={chartRenderKey}
+          layout={isSheet ? 'mobile' : 'desktop'}
+          pairLabel={pairLabel}
+          showNoData={showNoData}
+        />
+      ) : (
+        <SwapTradingViewAdvancedEmbed
+          symbol={embedSymbol}
+          theme={isDark ? 'dark' : 'light'}
+          locale={currentLanguage.code}
+          interval="15"
+          remountKey={`${embedSymbol}-${chartInverted}-${isDark}-${isSheet}`}
+        />
+      )}
+    </Suspense>
   )
 
   return (

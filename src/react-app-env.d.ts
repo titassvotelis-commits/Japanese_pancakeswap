@@ -1,6 +1,16 @@
 /// <reference types="react-scripts" />
 
+interface IdleRequestDeadline {
+  didTimeout: boolean
+  timeRemaining: () => number
+}
+
 interface Window {
+  requestIdleCallback?: (
+    callback: (deadline: IdleRequestDeadline) => void,
+    options?: { timeout?: number },
+  ) => number
+  cancelIdleCallback?: (handle: number) => void
   ethereum?: {
     isMetaMask?: boolean
     isTrust?: boolean

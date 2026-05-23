@@ -1,7 +1,15 @@
 import { ChainId, Currency, ETHER, Token } from '@pancakeswap/sdk'
+import { makeRatioBinancePair, parseRatioBinancePair } from './binanceRatioPair'
+import { makeCoingeckoChartPair } from './coingeckoChartPair'
 import { wrappedCurrency } from './wrappedCurrency'
 
 const STABLE_QUOTES = new Set(['USDT', 'BUSD', 'USDC', 'DAI', 'TUSD', 'USD1', 'VAI'])
+
+/** BSC tokens without a live Binance spot pair — chart via CoinGecko vs BNB */
+const COINGECKO_BNB_CHART_IDS: Record<string, string> = {
+  BELT: 'belt',
+  EPS: 'ellipsis',
+}
 
 /** Map UI / wrapped symbols → Binance spot asset codes */
 const BINANCE_ASSET: Record<string, string> = {
@@ -34,8 +42,20 @@ const BINANCE_PAIR_OVERRIDE: Record<string, string> = {
   'BTCB-BNB': 'BTCUSDT',
   'TKO-WBNB': 'TKOUSDT',
   'TKO-BNB': 'TKOUSDT',
-  'WBNB-TKO': 'TKOBNB',
-  'BNB-TKO': 'TKOBNB',
+  'WBNB-TKO': makeRatioBinancePair('BNBUSDT', 'TKOUSDT'),
+  'BNB-TKO': makeRatioBinancePair('BNBUSDT', 'TKOUSDT'),
+  'BNB-DEXE': 'DEXEUSDT',
+  'DEXE-BNB': 'DEXEUSDT',
+  'WBNB-DEXE': 'DEXEUSDT',
+  'DEXE-WBNB': 'DEXEUSDT',
+  'BELT-WBNB': makeCoingeckoChartPair('belt', 'bnb'),
+  'BELT-BNB': makeCoingeckoChartPair('belt', 'bnb'),
+  'WBNB-BELT': makeCoingeckoChartPair('belt', 'bnb'),
+  'BNB-BELT': makeCoingeckoChartPair('belt', 'bnb'),
+  'EPS-WBNB': makeCoingeckoChartPair('ellipsis', 'bnb'),
+  'EPS-BNB': makeCoingeckoChartPair('ellipsis', 'bnb'),
+  'WBNB-EPS': makeCoingeckoChartPair('ellipsis', 'bnb'),
+  'BNB-EPS': makeCoingeckoChartPair('ellipsis', 'bnb'),
 }
 
 function pairKey(a: string, b: string): string {
@@ -78,11 +98,19 @@ function wrappedTokens(
  * Resolve Binance spot market for chart BASE/QUOTE.
  * Flip changes order: BNB/USDT → USDT/BNB uses inverted ticker construction when needed.
  */
+export type BinanceMarketInfo = {
+  tradingViewSymbol: string
+  binancePair: string
+  isInvertedMarket: boolean
+  /** Chart uses TOKEN/USDT on Binance as a reference (pair may not have a direct spot market). */
+  isReferenceUsdtPair?: boolean
+}
+
 export function resolveBinanceMarket(
   base?: Currency,
   quote?: Currency,
   chainId: number = ChainId.MAINNET,
-): { tradingViewSymbol: string; binancePair: string; isInvertedMarket: boolean } | null {
+): BinanceMarketInfo | null {
   const tokens = wrappedTokens(base, quote, chainId)
   if (!tokens) {
     return null
@@ -94,10 +122,34 @@ export function resolveBinanceMarket(
 
   if (BINANCE_PAIR_OVERRIDE[overrideKey]) {
     const binancePair = BINANCE_PAIR_OVERRIDE[overrideKey]
+    const ratio = parseRatioBinancePair(binancePair)
+    const coingecko = binancePair.startsWith('COINGECKO:')
+    const invertedCoingeckoBnb = coingecko && symBase === 'BNB'
     return {
-      tradingViewSymbol: `BINANCE:${binancePair}`,
+      tradingViewSymbol: `BINANCE:${ratio ? ratio.numerator : 'BNBUSDT'}`,
       binancePair,
-      isInvertedMarket: STABLE_QUOTES.has(symBase) && !STABLE_QUOTES.has(symQuote),
+      isInvertedMarket:
+        invertedCoingeckoBnb || (STABLE_QUOTES.has(symBase) && !STABLE_QUOTES.has(symQuote)),
+      isReferenceUsdtPair: Boolean(ratio || coingecko),
+    }
+  }
+
+  const cgBase = COINGECKO_BNB_CHART_IDS[symBase]
+  if (cgBase && symQuote === 'BNB') {
+    return {
+      tradingViewSymbol: 'BINANCE:BNBUSDT',
+      binancePair: makeCoingeckoChartPair(cgBase, 'bnb'),
+      isInvertedMarket: false,
+      isReferenceUsdtPair: true,
+    }
+  }
+  const cgQuote = COINGECKO_BNB_CHART_IDS[symQuote]
+  if (symBase === 'BNB' && cgQuote) {
+    return {
+      tradingViewSymbol: 'BINANCE:BNBUSDT',
+      binancePair: makeCoingeckoChartPair(cgQuote, 'bnb'),
+      isInvertedMarket: true,
+      isReferenceUsdtPair: true,
     }
   }
 
@@ -122,21 +174,25 @@ export function resolveBinanceMarket(
     }
   }
 
-  // BNB as quote: TOKEN/BNB
-  if (symQuote === 'BNB' && symBase !== 'BNB') {
+  // BNB as quote: TOKEN/BNB — use TOKENUSDT (TOKENBNB often missing on Binance spot)
+  if (symQuote === 'BNB' && symBase !== 'BNB' && !STABLE_QUOTES.has(symBase)) {
+    const usdtPair = `${symBase}USDT`
     return {
-      tradingViewSymbol: `BINANCE:${direct}`,
-      binancePair: direct,
+      tradingViewSymbol: `BINANCE:${usdtPair}`,
+      binancePair: usdtPair,
       isInvertedMarket: false,
+      isReferenceUsdtPair: true,
     }
   }
 
-  // BNB as base: BNB/TOKEN
-  if (symBase === 'BNB' && symQuote !== 'BNB') {
+  // BNB as base: BNB/TOKEN — use TOKENUSDT (DEXEBNB etc. often missing on Binance spot)
+  if (symBase === 'BNB' && symQuote !== 'BNB' && !STABLE_QUOTES.has(symQuote)) {
+    const usdtPair = `${symQuote}USDT`
     return {
-      tradingViewSymbol: `BINANCE:${reverse}`,
-      binancePair: reverse,
-      isInvertedMarket: true,
+      tradingViewSymbol: `BINANCE:${usdtPair}`,
+      binancePair: usdtPair,
+      isInvertedMarket: false,
+      isReferenceUsdtPair: true,
     }
   }
 

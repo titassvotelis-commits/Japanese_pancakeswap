@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react'
+import { mergeRatioTickers, parseRatioBinancePair } from 'utils/binanceRatioPair'
+import { fetchCoingecko24hTicker, parseCoingeckoChartPair } from 'utils/coingeckoChartPair'
 import { resolveBinanceMarket } from 'utils/tradingViewSymbol'
 import { Currency } from '@pancakeswap/sdk'
 
@@ -42,6 +44,7 @@ export function useBinance24hTicker(
   base?: Currency,
   quote?: Currency,
   chainId?: number,
+  active = true,
 ): {
   ticker: Binance24hTicker | null
   loading: boolean
@@ -52,7 +55,7 @@ export function useBinance24hTicker(
   const market = resolveBinanceMarket(base, quote, chainId)
 
   useEffect(() => {
-    if (!market?.binancePair) {
+    if (!active || !market?.binancePair) {
       setTicker(null)
       setLoading(false)
       return undefined
@@ -63,7 +66,16 @@ export function useBinance24hTicker(
     const load = async () => {
       setLoading(true)
       try {
-        const raw = await fetchBinance24hTicker(market.binancePair)
+        const ratio = parseRatioBinancePair(market.binancePair)
+        const coingecko = parseCoingeckoChartPair(market.binancePair)
+        const raw = ratio
+          ? await Promise.all([
+              fetchBinance24hTicker(ratio.numerator),
+              fetchBinance24hTicker(ratio.denominator),
+            ]).then(([num, den]) => (num && den ? mergeRatioTickers(num, den) : null))
+          : coingecko
+            ? await fetchCoingecko24hTicker(coingecko.coinId, coingecko.vsCurrency)
+            : await fetchBinance24hTicker(market.binancePair)
         if (!cancelled) {
           setTicker(raw ? (market.isInvertedMarket ? invertTicker(raw) : raw) : null)
         }
@@ -85,7 +97,7 @@ export function useBinance24hTicker(
       cancelled = true
       window.clearInterval(interval)
     }
-  }, [market?.binancePair, market?.isInvertedMarket, base, quote, chainId])
+  }, [active, market?.binancePair, market?.isInvertedMarket, base, quote, chainId])
 
   return { ticker, loading }
 }

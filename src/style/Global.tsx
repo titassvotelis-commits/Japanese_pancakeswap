@@ -188,7 +188,8 @@ const GlobalStyle = createGlobalStyle`
       margin-left: auto;
     }
 
-    #nav-language-menu-button {
+    /* Hide header language control only; footer #site-footer keeps LanguageNavMenu on mobile */
+    #root nav #nav-language-menu-button {
       display: none !important;
     }
 

@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react'
+import { mergeRatioCandles, parseRatioBinancePair } from 'utils/binanceRatioPair'
+import { fetchCoingeckoCandles, parseCoingeckoChartPair } from 'utils/coingeckoChartPair'
 
 export type BinanceCandle = {
   time: number
@@ -40,13 +42,14 @@ export function useBinanceKlines(
   interval = '15m',
   limit = 300,
   invert = false,
+  active = true,
 ): { candles: BinanceCandle[]; loading: boolean; error: boolean } {
   const [candles, setCandles] = useState<BinanceCandle[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
 
   useEffect(() => {
-    if (!binancePair) {
+    if (!active || !binancePair) {
       setCandles([])
       setLoading(false)
       setError(false)
@@ -61,7 +64,16 @@ export function useBinanceKlines(
       }
       setError(false)
       try {
-        const data = await fetchBinanceKlines(binancePair, interval, limit)
+        const ratio = parseRatioBinancePair(binancePair)
+        const coingecko = parseCoingeckoChartPair(binancePair)
+        const data = ratio
+          ? mergeRatioCandles(
+              await fetchBinanceKlines(ratio.numerator, interval, limit),
+              await fetchBinanceKlines(ratio.denominator, interval, limit),
+            )
+          : coingecko
+            ? await fetchCoingeckoCandles(coingecko.coinId, coingecko.vsCurrency, interval)
+            : await fetchBinanceKlines(binancePair, interval, limit)
         if (!cancelled) {
           setCandles(invert ? invertBinanceCandles(data) : data)
         }
@@ -85,7 +97,7 @@ export function useBinanceKlines(
       cancelled = true
       window.clearInterval(timer)
     }
-  }, [binancePair, interval, limit, invert])
+  }, [active, binancePair, interval, limit, invert])
 
   return { candles, loading, error }
 }
