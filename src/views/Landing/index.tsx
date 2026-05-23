@@ -4,6 +4,7 @@ import { Helmet } from 'react-helmet-async'
 import { ChevronDownIcon } from '@pancakeswap/uikit'
 import LandingHero from './components/LandingHero'
 import LandingFeatures from './components/LandingFeatures'
+import { useTranslation } from 'contexts/Localization'
 import { NAV_BREAKPOINTS } from 'components/Menu/navHeaderTheme'
 
 const PageWrap = styled.div`
@@ -49,6 +50,7 @@ const ScrollHint = styled.button`
 `
 
 const Landing: React.FC = () => {
+  const { t } = useTranslation()
   const scrollToFeatures = () => {
     document.getElementById('landing-features')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
@@ -56,14 +58,16 @@ const Landing: React.FC = () => {
   return (
     <PageWrap>
       <Helmet>
-        <title>Optimus Swap — Trade JNTo on BNB Chain</title>
+        <title>{t('Optimus Swap — Trade JNTo on BNB Chain')}</title>
         <meta
           name="description"
-          content="Swap, farm, and earn with JNToken (JNTo) on Optimus Swap — the home of JNTo on BNB Smart Chain."
+          content={t(
+            'Swap, farm, and earn with JNToken (JNTo) on Optimus Swap — the home of JNTo on BNB Smart Chain.',
+          )}
         />
       </Helmet>
       <LandingHero />
-      <ScrollHint type="button" onClick={scrollToFeatures} aria-label="Scroll to features">
+      <ScrollHint type="button" onClick={scrollToFeatures} aria-label={t('Scroll to features')}>
         <ChevronDownIcon width="32px" />
       </ScrollHint>
       <LandingFeatures />

@@ -6,6 +6,7 @@ import { useExpertModeManager } from 'state/user/hooks'
 import GlobalSettings from 'components/Menu/GlobalSettings'
 import Transactions from './Transactions'
 import QuestionHelper from '../QuestionHelper'
+import { useTranslation } from 'contexts/Localization'
 import { NAV_BREAKPOINTS } from '../Menu/navHeaderTheme'
 
 interface Props {
@@ -44,6 +45,7 @@ const AppHeaderContainer = styled(Flex)`
 `
 
 const AppHeader: React.FC<Props> = ({ title, subtitle, helper, backTo, noConfig = false, chartToggle }) => {
+  const { t } = useTranslation()
   const [expertMode] = useExpertModeManager()
 
   return (
@@ -72,7 +74,7 @@ const AppHeader: React.FC<Props> = ({ title, subtitle, helper, backTo, noConfig 
             <IconButton
               variant="text"
               onClick={chartToggle.onToggle}
-              aria-label={chartToggle.isOpen ? 'Hide chart' : 'Show chart'}
+              aria-label={chartToggle.isOpen ? t('Hide chart') : t('Show chart')}
               mr="8px"
             >
               <ChartIcon color={chartToggle.isOpen ? 'primary' : 'textSubtle'} />

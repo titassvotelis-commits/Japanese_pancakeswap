@@ -4,6 +4,7 @@ import { Currency, ETHER } from '@pancakeswap/sdk'
 import { BinanceIcon } from '@pancakeswap/uikit'
 import tokens from 'config/constants/tokens'
 import { CurrencyLogo } from 'components/Logo'
+import { useTranslation } from 'contexts/Localization'
 import { NAV_BREAKPOINTS } from 'components/Menu/navHeaderTheme'
 
 const MARK_TOKENS = [
@@ -200,7 +201,10 @@ const Caption = styled.p`
   }
 `
 
-const LandingTokenMarks: React.FC = () => (
+const LandingTokenMarks: React.FC = () => {
+  const { t } = useTranslation()
+
+  return (
   <MarksRoot>
     <ScrollWrap>
       <RowOuter>
@@ -222,8 +226,9 @@ const LandingTokenMarks: React.FC = () => (
         </Row>
       </RowOuter>
     </ScrollWrap>
-    <Caption>Trade JNTo with BNB, stablecoins, and more on BNB Chain</Caption>
+    <Caption>{t('Trade JNTo with BNB, stablecoins, and more on BNB Chain')}</Caption>
   </MarksRoot>
-)
+  )
+}
 
 export default LandingTokenMarks

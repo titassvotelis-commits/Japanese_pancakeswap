@@ -1,5 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
+import { useTranslation } from 'contexts/Localization'
 import { NAV_BODY_OFFSET, NAV_BREAKPOINTS } from 'components/Menu/navHeaderTheme'
 import LandingTokenMarks from './LandingTokenMarks'
 import LandingSwapCard from './LandingSwapCard'
@@ -126,16 +127,19 @@ const WidgetCol = styled.div`
   }
 `
 
-const LandingHero: React.FC = () => (
+const LandingHero: React.FC = () => {
+  const { t } = useTranslation()
+
+  return (
   <Page>
     <Hero>
       <Grid>
         <CopyCol>
           <Headline>
-            <HeadlineLight>Everyone&apos;s</HeadlineLight>
-            <HeadlineAccent>Favorite JNTo DEX</HeadlineAccent>
+            <HeadlineLight>{t("Everyone's")}</HeadlineLight>
+            <HeadlineAccent>{t('Favorite JNTo DEX')}</HeadlineAccent>
           </Headline>
-          <Subhead>Trade JNToken Instantly on BNB Chain</Subhead>
+          <Subhead>{t('Trade JNToken Instantly on BNB Chain')}</Subhead>
           <LandingTokenMarks />
         </CopyCol>
         <WidgetCol>
@@ -144,6 +148,7 @@ const LandingHero: React.FC = () => (
       </Grid>
     </Hero>
   </Page>
-)
+  )
+}
 
 export default LandingHero

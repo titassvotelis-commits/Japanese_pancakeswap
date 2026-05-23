@@ -2,6 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 import { Link } from 'react-router-dom'
 import { Flex, Image, Skeleton, Text } from '@pancakeswap/uikit'
+import { useTranslation } from 'contexts/Localization'
 import { useMkTokenPriceDisplay } from 'hooks/useMkWalletUsd'
 import tokens from 'config/constants/tokens'
 
@@ -18,6 +19,7 @@ const PriceLink = styled(Link)`
 `
 
 const NavMkPrice = () => {
+  const { t } = useTranslation()
   const { part, pending } = useMkTokenPriceDisplay()
   const swapTo = `/swap?outputCurrency=${tokens.jnto.address}`
 
@@ -30,7 +32,7 @@ const NavMkPrice = () => {
   }
 
   return (
-    <PriceLink to={swapTo} title="JNTo price (USD)">
+    <PriceLink to={swapTo} title={t('JNTo price (USD)')}>
       <Image
         src="/images/metakey-logo-icon.png"
         alt="JNTo"

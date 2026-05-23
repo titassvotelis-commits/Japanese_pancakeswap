@@ -277,7 +277,7 @@ const SwapTradingViewChart: React.FC<SwapTradingViewChartProps> = ({
           </ChartHeaderRow>
           {isProxy && pairLabel && (
             <Text fontSize="12px" color="textSubtle">
-              {t('Reference chart for %pair% (TradingView)').replace('%pair%', pairLabel)}
+              {t('Reference chart for %pair% (TradingView)', { pair: pairLabel })}
             </Text>
           )}
         </ChartHeader>

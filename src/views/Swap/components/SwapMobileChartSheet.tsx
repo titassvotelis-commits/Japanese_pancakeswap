@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import styled, { css, keyframes } from 'styled-components'
 import { CloseIcon, IconButton } from '@pancakeswap/uikit'
+import { useTranslation } from 'contexts/Localization'
 import { NAV_BREAKPOINTS } from 'components/Menu/navHeaderTheme'
 
 const DISMISS_DRAG_PX = 100
@@ -105,6 +106,7 @@ type SwapMobileChartSheetProps = {
 }
 
 const SwapMobileChartSheet: React.FC<SwapMobileChartSheetProps> = ({ isOpen, onClose, children }) => {
+  const { t } = useTranslation()
   const sheetRef = useRef<HTMLDivElement>(null)
   const dragRef = useRef({
     active: false,
@@ -267,7 +269,7 @@ const SwapMobileChartSheet: React.FC<SwapMobileChartSheetProps> = ({ isOpen, onC
         ref={sheetRef}
         role="dialog"
         aria-modal="true"
-        aria-label="Price chart"
+        aria-label={t('Price chart')}
         $dragY={dragY}
         $dragging={dragging}
         $exiting={exiting}
@@ -282,7 +284,7 @@ const SwapMobileChartSheet: React.FC<SwapMobileChartSheetProps> = ({ isOpen, onC
         >
           <DragHandle />
           <CloseWrap>
-            <CloseBtn variant="text" onClick={animateClose} aria-label="Close chart">
+            <CloseBtn variant="text" onClick={animateClose} aria-label={t('Close chart')}>
               <CloseIcon color="textSubtle" />
             </CloseBtn>
           </CloseWrap>

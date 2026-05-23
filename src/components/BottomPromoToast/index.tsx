@@ -10,6 +10,7 @@ import {
   PROMO_SWIPE_VELOCITY,
   PromoArtTheme,
 } from 'config/constants/promoAds'
+import { useTranslation } from 'contexts/Localization'
 import { NAV_BREAKPOINTS } from 'components/Menu/navHeaderTheme'
 import PromoSlideArt from './PromoSlideArt'
 
@@ -267,6 +268,7 @@ const CloseIconSvg = () => (
 )
 
 const BottomPromoToast: React.FC = () => {
+  const { t } = useTranslation()
   const [visible, setVisible] = useState(true)
   const [activeIndex, setActiveIndex] = useState(0)
   const [dragPx, setDragPx] = useState(0)
@@ -458,9 +460,9 @@ const BottomPromoToast: React.FC = () => {
   const portalTarget = document.getElementById('portal-root') ?? document.body
 
   return createPortal(
-    <Root role="complementary" aria-label="JNTo promotion">
+    <Root role="complementary" aria-label={t('JNTo promotion')}>
       <Card $theme={slide.artTheme}>
-        <CloseButton type="button" onClick={dismiss} aria-label="Dismiss promotion" data-no-swipe>
+        <CloseButton type="button" onClick={dismiss} aria-label={t('Dismiss promotion')} data-no-swipe>
           <CloseIconSvg />
         </CloseButton>
 
@@ -487,7 +489,7 @@ const BottomPromoToast: React.FC = () => {
                     }}
                     data-no-swipe
                   >
-                    {s.ctaLabel}
+                    {t(s.ctaLabelKey)}
                     <OpenNewIcon color="#2a2008" width="14px" />
                   </CtaLink>
                 ) : (
@@ -499,16 +501,16 @@ const BottomPromoToast: React.FC = () => {
                       navigatePromo(s.ctaHref)
                     }}
                   >
-                    {s.ctaLabel}
+                    {t(s.ctaLabelKey)}
                   </CtaButton>
                 )
 
               return (
                 <SlidePanel key={s.id}>
                   <Content data-no-swipe>
-                    {s.badge ? <Badge>{s.badge}</Badge> : null}
-                    <Title>{s.title}</Title>
-                    {s.subtitle ? <Subtitle>{s.subtitle}</Subtitle> : null}
+                    {s.badgeKey ? <Badge>{t(s.badgeKey)}</Badge> : null}
+                    <Title>{t(s.titleKey)}</Title>
+                    {s.subtitleKey ? <Subtitle>{t(s.subtitleKey)}</Subtitle> : null}
                     {cta}
                   </Content>
                   <ArtPanel>
@@ -526,7 +528,7 @@ const BottomPromoToast: React.FC = () => {
               key={s.id}
               type="button"
               $active={index === activeIndex}
-              aria-label={`Show promotion ${index + 1}`}
+              aria-label={t('Show promotion %index%', { index: index + 1 })}
               onClick={() => goTo(index)}
               data-no-swipe
             />

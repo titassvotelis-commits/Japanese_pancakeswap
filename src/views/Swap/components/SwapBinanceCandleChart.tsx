@@ -332,9 +332,9 @@ const SwapBinanceCandleChart: React.FC<SwapBinanceCandleChartProps> = ({
         </IntervalBtn>
       ))}
       <ToolbarDivider />
-      <CandleIcon title="Candles">▮</CandleIcon>
+      <CandleIcon title={t('Candles')}>▮</CandleIcon>
       <ToolbarDivider />
-      <ToolbarMuted>fx</ToolbarMuted>
+      <ToolbarMuted>{t('fx')}</ToolbarMuted>
       <ToolbarDivider />
       <ToolbarMuted>{t('Binance pricing')}</ToolbarMuted>
     </TvToolbar>
@@ -382,7 +382,7 @@ const SwapBinanceCandleChart: React.FC<SwapBinanceCandleChartProps> = ({
           </EmptyState>
         )}
       </ChartWrap>
-      {!isMobile && <TvFooter $isDark={isDark}>Charting by TradingView</TvFooter>}
+      {!isMobile && <TvFooter $isDark={isDark}>{t('Charting by TradingView')}</TvFooter>}
     </ChartFrame>
   )
 }

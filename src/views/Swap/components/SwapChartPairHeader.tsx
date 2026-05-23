@@ -3,6 +3,7 @@ import styled from 'styled-components'
 import { Currency } from '@pancakeswap/sdk'
 import { ArrowUpDownIcon, Text } from '@pancakeswap/uikit'
 import { CurrencyLogo } from 'components/Logo'
+import { useTranslation } from 'contexts/Localization'
 import { NAV_BREAKPOINTS } from 'components/Menu/navHeaderTheme'
 
 const HeaderRow = styled.div`
@@ -83,6 +84,8 @@ const SwapChartPairHeader: React.FC<SwapChartPairHeaderProps> = ({
   disabled = false,
   onFlip,
 }) => {
+  const { t } = useTranslation()
+
   return (
     <HeaderRow>
       <IconStack>
@@ -95,7 +98,7 @@ const SwapChartPairHeader: React.FC<SwapChartPairHeaderProps> = ({
         $active={inverted}
         onClick={onFlip}
         onMouseDown={(e) => e.stopPropagation()}
-        aria-label="Flip chart pair"
+        aria-label={t('Flip chart pair')}
         aria-pressed={inverted}
         disabled={disabled}
       >

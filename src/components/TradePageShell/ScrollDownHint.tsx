@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import styled, { keyframes } from 'styled-components'
 import { ChevronDownIcon } from '@pancakeswap/uikit'
+import { useTranslation } from 'contexts/Localization'
 
 const bounceBlink = keyframes`
   0%,
@@ -42,6 +43,7 @@ const HintButton = styled.button`
 const SITE_FOOTER_ID = 'site-footer'
 
 const ScrollDownHint: React.FC = () => {
+  const { t } = useTranslation()
   const [showHint, setShowHint] = useState(true)
 
   useEffect(() => {
@@ -70,7 +72,7 @@ const ScrollDownHint: React.FC = () => {
   }
 
   return (
-    <HintButton type="button" onClick={scrollToFooter} aria-label="Scroll to footer">
+    <HintButton type="button" onClick={scrollToFooter} aria-label={t('Scroll to footer')}>
       <ChevronDownIcon width="32px" />
     </HintButton>
   )

@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import styled from 'styled-components'
+import { useTranslation } from 'contexts/Localization'
 import MkPriceBuyActions from './MkPriceBuyActions'
 import {
   clearNavLogoMkDismissed,
@@ -62,6 +63,7 @@ function flattenLogoAnchorWrappers(link: HTMLAnchorElement): HTMLElement {
 
 /** Hover dropdown under header logo with JNTo price + Buy JNTo (same as footer). */
 const NavLogoMkDropdown: React.FC = () => {
+  const { t } = useTranslation()
   const anchorRef = useRef<HTMLElement | null>(null)
   const [ready, setReady] = useState(false)
 
@@ -153,7 +155,7 @@ const NavLogoMkDropdown: React.FC = () => {
   }
 
   return createPortal(
-    <Panel role="region" aria-label="JNTo price and buy">
+    <Panel role="region" aria-label={t('JNTo price and buy')}>
       <MkPriceBuyActions onBuyMkClick={closeNavLogoMkDropdown} />
     </Panel>,
     anchorRef.current,

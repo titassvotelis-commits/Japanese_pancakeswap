@@ -12,10 +12,10 @@ export const JNTO_STAKE = '/farms'
 
 export type PromoAdSlide = {
   id: string
-  title: string
-  subtitle?: string
-  badge?: string
-  ctaLabel: string
+  titleKey: string
+  subtitleKey?: string
+  badgeKey?: string
+  ctaLabelKey: string
   ctaHref: string
   ctaExternal?: boolean
   artTheme: PromoArtTheme
@@ -24,28 +24,28 @@ export type PromoAdSlide = {
 export const PROMO_AD_SLIDES: PromoAdSlide[] = [
   {
     id: 'jnto-intro',
-    badge: 'Native token',
-    title: 'JNTo powers Optimus.',
-    subtitle: 'JNToken — the core asset behind swaps, farms, and rewards on Optimus Swap.',
-    ctaLabel: 'Get JNTo',
+    badgeKey: 'Native token',
+    titleKey: 'JNTo powers Optimus.',
+    subtitleKey: 'JNToken — the core asset behind swaps, farms, and rewards on Optimus Swap.',
+    ctaLabelKey: 'Get JNTo',
     ctaHref: JNTO_SWAP_GET,
     artTheme: 'jnto-hero',
   },
   {
     id: 'jnto-trade',
-    badge: 'Trade',
-    title: 'Swap into JNTo instantly.',
-    subtitle: 'Pair BNB or stablecoins with JNTo — deep routes, minimal friction.',
-    ctaLabel: 'Trade JNTo',
+    badgeKey: 'Trade',
+    titleKey: 'Swap into JNTo instantly.',
+    subtitleKey: 'Pair BNB or stablecoins with JNTo — deep routes, minimal friction.',
+    ctaLabelKey: 'Trade JNTo',
     ctaHref: JNTO_SWAP_TRADE,
     artTheme: 'jnto-swap',
   },
   {
     id: 'jnto-earn',
-    badge: 'Earn',
-    title: 'Stake JNTo. Harvest more.',
-    subtitle: 'Farm and pool your JNTo to compound yields across the ecosystem.',
-    ctaLabel: 'Stake JNTo',
+    badgeKey: 'Earn',
+    titleKey: 'Stake JNTo. Harvest more.',
+    subtitleKey: 'Farm and pool your JNTo to compound yields across the ecosystem.',
+    ctaLabelKey: 'Stake JNTo',
     ctaHref: JNTO_STAKE,
     artTheme: 'jnto-earn',
   },

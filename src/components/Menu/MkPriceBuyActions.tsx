@@ -79,7 +79,10 @@ const MkPriceBuyActions: React.FC<MkPriceBuyActionsProps> = ({ onBuyMkClick }) =
 
   return (
     <ActionsRow>
-      <PriceLink to={swapTo} title={mkPricePending ? 'JNTo price (USD)' : `JNTo price: $${mkPricePart}`}>
+      <PriceLink
+        to={swapTo}
+        title={mkPricePending ? t('JNTo price (USD)') : t('JNTo price: $%price%', { price: mkPricePart })}
+      >
         <Image
           src={MK_LOGO_SRC}
           alt="JNTo"

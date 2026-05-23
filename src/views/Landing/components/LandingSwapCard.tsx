@@ -12,6 +12,7 @@ import history from 'routerHistory'
 import store from 'state'
 import { tryParseAmount } from 'state/swap/hooks'
 import { Field, replaceSwapState } from 'state/swap/actions'
+import { useTranslation } from 'contexts/Localization'
 import { isAddress } from 'utils'
 
 const jntoAddress = isAddress(tokens.jnto.address) || tokens.jnto.address
@@ -250,6 +251,7 @@ const GetStartedBtn = styled.button`
 `
 
 const LandingSwapCard: React.FC = () => {
+  const { t } = useTranslation()
   const [reversed, setReversed] = useState(false)
   const [typedValue, setTypedValue] = useState('')
 
@@ -333,7 +335,7 @@ const LandingSwapCard: React.FC = () => {
       <CurrencyLogo currency={jntoToken as Currency} size="32px" />
       <TokenMeta>
         <TokenName>JNTo</TokenName>
-        <ChainName>BNB Chain</ChainName>
+        <ChainName>{t('BNB Chain')}</ChainName>
       </TokenMeta>
     </>
   ) : (
@@ -341,7 +343,7 @@ const LandingSwapCard: React.FC = () => {
       <BinanceIcon width="32px" />
       <TokenMeta>
         <TokenName>BNB</TokenName>
-        <ChainName>BNB Chain</ChainName>
+        <ChainName>{t('BNB Chain')}</ChainName>
       </TokenMeta>
     </>
   )
@@ -351,7 +353,7 @@ const LandingSwapCard: React.FC = () => {
       <BinanceIcon width="32px" />
       <TokenMeta>
         <TokenName>BNB</TokenName>
-        <ChainName>BNB Chain</ChainName>
+        <ChainName>{t('BNB Chain')}</ChainName>
       </TokenMeta>
     </>
   ) : (
@@ -359,7 +361,7 @@ const LandingSwapCard: React.FC = () => {
       <CurrencyLogo currency={jntoToken as Currency} size="32px" />
       <TokenMeta>
         <TokenName>JNTo</TokenName>
-        <ChainName>BNB Chain</ChainName>
+        <ChainName>{t('BNB Chain')}</ChainName>
       </TokenMeta>
     </>
   )
@@ -367,9 +369,9 @@ const LandingSwapCard: React.FC = () => {
   return (
     <Card>
       <div>
-        <SectionLabel>From</SectionLabel>
+        <SectionLabel>{t('From')}</SectionLabel>
         <TokenRow>
-          <TokenSelectBtn type="button" onClick={goSwap} aria-label="Select from token on swap page">
+          <TokenSelectBtn type="button" onClick={goSwap} aria-label={t('Select from token on swap page')}>
             {fromToken}
             <ChevronDownIcon color="textSubtle" width="16px" />
           </TokenSelectBtn>
@@ -385,7 +387,7 @@ const LandingSwapCard: React.FC = () => {
                 const sanitized = parts.length > 2 ? `${parts[0]}.${parts.slice(1).join('')}` : v
                 setTypedValue(sanitized)
               }}
-              aria-label="Amount to swap"
+              aria-label={t('Amount to swap')}
             />
             <UsdHint>{formatUsd(inputUsd)}</UsdHint>
           </AmountCol>
@@ -395,14 +397,14 @@ const LandingSwapCard: React.FC = () => {
       <DividerRow>
         <SwapTokenDirectionButton
           onClick={() => setReversed((v) => !v)}
-          aria-label="Switch from and to tokens"
+          aria-label={t('Switch from and to tokens')}
         />
       </DividerRow>
 
       <div>
-        <SectionLabel>To</SectionLabel>
+        <SectionLabel>{t('To')}</SectionLabel>
         <TokenRow>
-          <TokenSelectBtn type="button" onClick={goSwap} aria-label="Select to token on swap page">
+          <TokenSelectBtn type="button" onClick={goSwap} aria-label={t('Select to token on swap page')}>
             {toToken}
             <ChevronDownIcon color="textSubtle" width="16px" />
           </TokenSelectBtn>
@@ -414,12 +416,12 @@ const LandingSwapCard: React.FC = () => {
       </div>
 
       <GetStartedBtn type="button" onClick={goSwap}>
-        Get Started
+        {t('Get Started')}
       </GetStartedBtn>
       <Text fontSize="11px" color="textSubtle" textAlign="center" mt="10px">
         {trade || (inputUsd !== null && outputDisplay !== '—')
-          ? 'Estimated from live pool prices · final amount on swap page'
-          : 'Connect your wallet on the swap page to trade'}
+          ? t('Estimated from live pool prices · final amount on swap page')
+          : t('Connect your wallet on the swap page to trade')}
       </Text>
     </Card>
   )

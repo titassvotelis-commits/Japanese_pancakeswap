@@ -5,6 +5,7 @@ import styled from 'styled-components'
 import { AutoRow } from 'components/Layout/Row'
 import { AutoColumn } from 'components/Layout/Column'
 import { CurrencyLogo } from 'components/Logo'
+import { useTranslation } from 'contexts/Localization'
 import useActiveWeb3React from 'hooks/useActiveWeb3React'
 import { getBscScanLink } from 'utils'
 import { wrappedCurrency } from 'utils/wrappedCurrency'
@@ -26,6 +27,7 @@ const DetailsFooter = styled.div`
 `
 
 const UnsupportedModal: React.FC<Props> = ({ currencies, onDismiss }) => {
+  const { t } = useTranslation()
   const { chainId } = useActiveWeb3React()
   const tokens =
     chainId && currencies
@@ -37,7 +39,7 @@ const UnsupportedModal: React.FC<Props> = ({ currencies, onDismiss }) => {
   const unsupportedTokens: { [address: string]: Token } = useUnsupportedTokens()
 
   return (
-    <Modal title="Unsupported Assets" maxWidth="420px" onDismiss={onDismiss}>
+    <Modal title={t('Unsupported Assets')} maxWidth="420px" onDismiss={onDismiss}>
       <AutoColumn gap="lg">
         {tokens.map((token) => {
           return (

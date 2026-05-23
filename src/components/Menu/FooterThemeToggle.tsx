@@ -1,6 +1,7 @@
 import React from 'react'
 import styled, { useTheme as useStyledTheme } from 'styled-components'
 import { MoonIcon, SunIcon } from '@pancakeswap/uikit'
+import { useTranslation } from 'contexts/Localization'
 
 const Track = styled.button`
   position: relative;
@@ -59,6 +60,7 @@ interface FooterThemeToggleProps {
 
 const FooterThemeToggle: React.FC<FooterThemeToggleProps> = ({ isDark, onToggle }) => {
   const theme = useStyledTheme()
+  const { t } = useTranslation()
   const inactiveIconColor = theme.colors.textSubtle
 
   return (
@@ -66,7 +68,7 @@ const FooterThemeToggle: React.FC<FooterThemeToggleProps> = ({ isDark, onToggle 
       type="button"
       role="switch"
       aria-checked={isDark}
-      aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+      aria-label={isDark ? t('Switch to light mode') : t('Switch to dark mode')}
       onClick={() => onToggle(!isDark)}
     >
       <IconSlot>

@@ -23,26 +23,26 @@ import MkPriceBuyActions from './MkPriceBuyActions'
 import { NAV_BREAKPOINTS, SITE_CHROME_BG } from './navHeaderTheme'
 
 const BRAND = {
-  title: 'METAKEY SWAP',
+  titleKey: 'METAKEY SWAP',
   logoSrc: '/images/metakey-logo-icon.png',
 } as const
 
 type SocialEntry =
-  | { href: string; label: string; Icon: React.ComponentType<SvgProps>; internal?: boolean }
-  | { href: string; label: string; kind: 'mail' }
+  | { href: string; labelKey: string; Icon: React.ComponentType<SvgProps>; internal?: boolean }
+  | { href: string; labelKey: string; kind: 'mail' }
 
 const SOCIAL: SocialEntry[] = [
-  { href: 'https://twitter.com/', label: 'Twitter', Icon: TwitterIcon },
-  { href: 'https://t.me/optimus', label: 'Telegram', Icon: TelegramIcon },
-  { href: 'https://t.me/optimus', label: 'Telegram announcements', Icon: TelegramIcon },
+  { href: 'https://twitter.com/', labelKey: 'Twitter', Icon: TwitterIcon },
+  { href: 'https://t.me/optimus', labelKey: 'Telegram', Icon: TelegramIcon },
+  { href: 'https://t.me/optimus', labelKey: 'Telegram announcements', Icon: TelegramIcon },
   {
     href: `https://dexscreener.com/bsc/${tokens.jnto.address}`,
-    label: 'Charts',
+    labelKey: 'Charts',
     Icon: ChartIcon,
   },
-  { href: 'https://docs.optimuswap.io/products/pancakeswap-exchange', label: 'Docs', Icon: ListViewIcon },
-  { href: '/farms', label: 'Farms', Icon: FarmIcon, internal: true },
-  { href: 'mailto:support@optimuswap.io?subject=optimus', label: 'Email', kind: 'mail' },
+  { href: 'https://docs.optimuswap.io/products/pancakeswap-exchange', labelKey: 'Docs', Icon: ListViewIcon },
+  { href: '/farms', labelKey: 'Farms', Icon: FarmIcon, internal: true },
+  { href: 'mailto:support@optimuswap.io?subject=optimus', labelKey: 'Email', kind: 'mail' },
 ]
 
 const Outer = styled(Box).attrs({ id: 'site-footer' })`
@@ -164,22 +164,23 @@ const BottomBar = styled(Flex)`
 
 const SiteFooter = () => {
   const { isDark, setTheme } = useTheme()
-  const { currentLanguage } = useTranslation()
+  const { t, currentLanguage } = useTranslation()
 
   return (
     <Outer as="footer" role="contentinfo">
       <Inner>
         <Flex flexDirection="column" alignItems={['center', 'center', 'flex-start']}>
           <BrandRow justifyContent={['center', 'center', 'flex-start']}>
-            <Image src={BRAND.logoSrc} alt={BRAND.title} width={36} height={36} style={{ borderRadius: 8, flexShrink: 0 }} />
-            <BrandTitle>{BRAND.title}</BrandTitle>
+            <Image src={BRAND.logoSrc} alt={t(BRAND.titleKey)} width={36} height={36} style={{ borderRadius: 8, flexShrink: 0 }} />
+            <BrandTitle>{t(BRAND.titleKey)}</BrandTitle>
           </BrandRow>
           <Flex flexWrap="wrap" alignItems="center" justifyContent={['center', 'center', 'flex-start']} style={{ gap: 14 }}>
             {SOCIAL.map((item) => {
+              const label = t(item.labelKey)
               const wrapProps = {
-                key: `${item.label}-${'kind' in item ? item.kind : item.href}`,
-                'aria-label': item.label,
-                title: item.label,
+                key: `${item.labelKey}-${'kind' in item ? item.kind : item.href}`,
+                'aria-label': label,
+                title: label,
               }
               if ('kind' in item && item.kind === 'mail') {
                 return (

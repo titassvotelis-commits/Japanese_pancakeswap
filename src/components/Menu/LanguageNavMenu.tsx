@@ -40,7 +40,7 @@ const LangButton = styled.button<{ $active?: boolean }>`
 
 const LanguageNavMenu = () => {
   const theme = useTheme()
-  const { currentLanguage, setLanguage } = useTranslation()
+  const { t, currentLanguage, setLanguage } = useTranslation()
 
   const sortedLangs = useMemo(
     () => [...languageList].sort((a, b) => a.language.localeCompare(b.language, undefined, { sensitivity: 'base' })),
@@ -56,7 +56,7 @@ const LanguageNavMenu = () => {
     <Flex alignItems="center" height="100%" mr="8px" flexShrink={0}>
       <BaseMenu
         component={
-          <IconButton variant="text" scale="sm" id="nav-language-menu-button" aria-label="Language">
+          <IconButton variant="text" scale="sm" id="nav-language-menu-button" aria-label={t('Language')}>
             <Globe size={22} strokeWidth={2} color={theme.colors.primary} aria-hidden />
           </IconButton>
         }

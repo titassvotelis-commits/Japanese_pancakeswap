@@ -5,6 +5,7 @@ import history from 'routerHistory'
 import tokens from 'config/constants/tokens'
 import { JNTO_STAKE, JNTO_SWAP_GET } from 'config/constants/promoAds'
 import { isAddress } from 'utils'
+import { useTranslation } from 'contexts/Localization'
 import { NAV_BREAKPOINTS } from 'components/Menu/navHeaderTheme'
 
 const Section = styled.section`
@@ -70,36 +71,40 @@ const jntoAddress = isAddress(tokens.jnto.address) || tokens.jnto.address
 
 const FEATURES = [
   {
-    title: 'Swap JNTo',
-    desc: 'Trade BNB, stablecoins, and more into JNToken with optimized routing.',
+    titleKey: 'Swap JNTo',
+    descKey: 'Trade BNB, stablecoins, and more into JNToken with optimized routing.',
     href: JNTO_SWAP_GET,
   },
   {
-    title: 'Farm & Earn',
-    desc: 'Stake LP tokens and harvest JNTo rewards across Optimus farms.',
+    titleKey: 'Farm & Earn',
+    descKey: 'Stake LP tokens and harvest JNTo rewards across Optimus farms.',
     href: JNTO_STAKE,
   },
   {
-    title: 'Add Liquidity',
-    desc: 'Provide BNB–JNTo liquidity and earn fees from every swap.',
+    titleKey: 'Add Liquidity',
+    descKey: 'Provide BNB–JNTo liquidity and earn fees from every swap.',
     href: `/add/BNB/${jntoAddress}`,
   },
 ]
 
-const LandingFeatures: React.FC = () => (
+const LandingFeatures: React.FC = () => {
+  const { t } = useTranslation()
+
+  return (
   <Section id="landing-features">
     <Text fontSize="13px" fontWeight={700} color="textSubtle" textTransform="uppercase" mb="16px">
-      Explore Optimus
+      {t('Explore Optimus')}
     </Text>
     <Grid>
       {FEATURES.map((f) => (
-        <FeatureCard key={f.title} type="button" onClick={() => history.push(f.href)}>
-          <FeatureTitle>{f.title}</FeatureTitle>
-          <FeatureDesc>{f.desc}</FeatureDesc>
+        <FeatureCard key={f.titleKey} type="button" onClick={() => history.push(f.href)}>
+          <FeatureTitle>{t(f.titleKey)}</FeatureTitle>
+          <FeatureDesc>{t(f.descKey)}</FeatureDesc>
         </FeatureCard>
       ))}
     </Grid>
   </Section>
-)
+  )
+}
 
 export default LandingFeatures

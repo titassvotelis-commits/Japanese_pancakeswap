@@ -29,7 +29,7 @@ const config: (t: ContextApi['t']) => ConfigMenuItemsType[] = (t) => [
     items: [],
   },
   {
-    label: 'Launch',
+    label: t('Launch'),
     icon: 'Pool',
     href: '/marketplace',
     showOnMobile: false,

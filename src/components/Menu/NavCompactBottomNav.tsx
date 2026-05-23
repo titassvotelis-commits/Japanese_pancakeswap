@@ -1,6 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
+import { useTranslation } from 'contexts/Localization'
 import {
   EarnIcon,
   Flex,
@@ -54,8 +55,11 @@ interface NavCompactBottomNavProps {
   activeItem?: string
 }
 
-const NavCompactBottomNav: React.FC<NavCompactBottomNavProps> = ({ items, activeItem }) => (
-  <Bar role="navigation" aria-label="Main">
+const NavCompactBottomNav: React.FC<NavCompactBottomNavProps> = ({ items, activeItem }) => {
+  const { t } = useTranslation()
+
+  return (
+  <Bar role="navigation" aria-label={t('Main navigation')}>
     {items.map((item) => {
       if (!item.href) {
         return null
@@ -79,6 +83,7 @@ const NavCompactBottomNav: React.FC<NavCompactBottomNavProps> = ({ items, active
       )
     })}
   </Bar>
-)
+  )
+}
 
 export default NavCompactBottomNav

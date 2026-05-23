@@ -109,7 +109,7 @@ export default function TradePrice({ price, showInverted, setShowInverted }: Tra
           variant="text"
           scale="sm"
           onClick={() => setShowInverted(!showInverted)}
-          aria-label="Toggle price direction"
+          aria-label={t('Toggle price direction')}
           style={{ flexShrink: 0 }}
         >
           <AutoRenewIcon width="18px" color="primary" />

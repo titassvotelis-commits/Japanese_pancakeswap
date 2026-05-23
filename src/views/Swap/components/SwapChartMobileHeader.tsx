@@ -3,6 +3,7 @@ import styled from 'styled-components'
 import { Currency } from '@pancakeswap/sdk'
 import { ArrowUpDownIcon, Text } from '@pancakeswap/uikit'
 import { CurrencyLogo } from 'components/Logo'
+import { useTranslation } from 'contexts/Localization'
 import { formatChartPrice } from 'utils/chartFormatPrice'
 import { Binance24hTicker } from 'hooks/useBinance24hTicker'
 
@@ -116,6 +117,7 @@ const SwapChartMobileHeader: React.FC<SwapChartMobileHeaderProps> = ({
   ticker,
   tickerLoading,
 }) => {
+  const { t } = useTranslation()
   const changePositive = (ticker?.priceChangePercent ?? 0) > 0
   const changeNegative = (ticker?.priceChangePercent ?? 0) < 0
   const changeText = ticker
@@ -135,7 +137,7 @@ const SwapChartMobileHeader: React.FC<SwapChartMobileHeaderProps> = ({
           $active={inverted}
           onClick={onFlip}
           onMouseDown={(e) => e.stopPropagation()}
-          aria-label="Flip chart pair"
+          aria-label={t('Flip chart pair')}
           disabled={disabled}
         >
           <ArrowUpDownIcon width="20px" color="primary" />
@@ -144,17 +146,17 @@ const SwapChartMobileHeader: React.FC<SwapChartMobileHeaderProps> = ({
       <MainPrice>{tickerLoading && !ticker ? '—' : ticker ? formatChartPrice(ticker.lastPrice) : '—'}</MainPrice>
       <StatsGrid>
         <StatItem>
-          <StatLabel>24h Change</StatLabel>
+          <StatLabel>{t('24h Change')}</StatLabel>
           <StatValue $positive={changePositive} $negative={changeNegative}>
             {changeText}
           </StatValue>
         </StatItem>
         <StatItem>
-          <StatLabel>24h High</StatLabel>
+          <StatLabel>{t('24h High')}</StatLabel>
           <StatValue>{ticker ? formatChartPrice(ticker.highPrice) : '—'}</StatValue>
         </StatItem>
         <StatItem>
-          <StatLabel>24h Low</StatLabel>
+          <StatLabel>{t('24h Low')}</StatLabel>
           <StatValue>{ticker ? formatChartPrice(ticker.lowPrice) : '—'}</StatValue>
         </StatItem>
       </StatsGrid>
